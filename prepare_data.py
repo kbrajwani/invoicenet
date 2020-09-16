@@ -44,7 +44,8 @@ def main():
     os.makedirs(os.path.join(args.out_dir, 'train'), exist_ok=True)
     os.makedirs(os.path.join(args.out_dir, 'val'), exist_ok=True)
  
-    filenames = [os.path.abspath(f) for f in glob.glob(args.data_dir + "**/*.pdf", recursive=True)]
+    # filenames = [os.path.abspath(f) for f in glob.glob(args.data_dir + "**/*.pdf", recursive=True)]
+    filenames = [os.path.abspath(item) for sublist in [glob.glob(args.data_dir + ext, recursive=True) for ext in ["**/*.pdf", "**/*.jpg", "**/*.png"]] for item in sublist]
 
     idx = int(len(filenames) * args.val_size)
     train_files = filenames[idx:]
@@ -102,12 +103,12 @@ def main():
                 if "png" in filename or "jpg" in filename:
                     import cv2
                     page = cv2.imread(filename)      
-                    cv2.imwrite(os.path.join(args.out_dir, phase, os.path.basename(filename)[:-3] + 'png',page)                    
+                    cv2.imwrite(os.path.join(args.out_dir, phase, os.path.basename(filename)[:-3] + 'png'),page)
 
                     height = page.shape[0]
                     width = page.shape[1]
-
-                    ngrams = util.create_ngrams(page)
+ 
+                    ngrams = util.create_ngrams(page,height, width)
                     for ngram in ngrams:
                         if "amount" in ngram["parses"]:
                             ngram["parses"]["amount"] = util.normalize(ngram["parses"]["amount"], key="amount")
@@ -141,9 +142,6 @@ def main():
                     with open(os.path.join(args.out_dir, phase, os.path.basename(filename)[:-3] + 'json'), 'w') as fp:
                         fp.write(simplejson.dumps(data, indent=2))
 
-            except Exception as exp:
-                print("Skipping {} : {}".format(filename, exp))
-                continue
 
 
 if __name__ == '__main__':

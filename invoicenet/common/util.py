@@ -113,9 +113,9 @@ def divide_into_lines(words, height, width):
     return lines
  
 
-def create_ngrams(img, length=4):
+def create_ngrams(img,height, width, length=4):
     words = extract_words(img)
-    lines = divide_into_lines(words, height=img.size[1], width=img.size[0])
+    lines = divide_into_lines(words, height=height, width=width)
     tokens = [line[i:i + N] for line in lines for N in range(1, length + 1) for i in range(len(line) - N + 1)]
     ngrams = []
     parser = TextParser()
