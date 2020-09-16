@@ -43,7 +43,7 @@ def main():
 
     os.makedirs(os.path.join(args.out_dir, 'train'), exist_ok=True)
     os.makedirs(os.path.join(args.out_dir, 'val'), exist_ok=True)
-
+ 
     filenames = [os.path.abspath(f) for f in glob.glob(args.data_dir + "**/*.pdf", recursive=True)]
 
     idx = int(len(filenames) * args.val_size)
@@ -98,6 +98,48 @@ def main():
 
                 with open(os.path.join(args.out_dir, phase, os.path.basename(filename)[:-3] + 'json'), 'w') as fp:
                     fp.write(simplejson.dumps(data, indent=2))
+            except:
+                if "png" in filename or "jpg" in filename:
+                    import cv2
+                    page = cv2.imread(filename)      
+                    cv2.imwrite(os.path.join(args.out_dir, phase, os.path.basename(filename)[:-3] + 'png',page)                    
+
+                    height = page.shape[0]
+                    width = page.shape[1]
+
+                    ngrams = util.create_ngrams(page)
+                    for ngram in ngrams:
+                        if "amount" in ngram["parses"]:
+                            ngram["parses"]["amount"] = util.normalize(ngram["parses"]["amount"], key="amount")
+                        if "date" in ngram["parses"]:
+                            ngram["parses"]["date"] = util.normalize(ngram["parses"]["date"], key="date")
+
+                    with open(filename[:-3] + 'json', 'r') as fp:
+                        labels = simplejson.loads(fp.read())
+
+                    fields = {}
+                    for field in FIELDS:
+                        if field in labels:
+                            if FIELDS[field] == FIELD_TYPES["amount"]:
+                                fields[field] = util.normalize(labels[field], key="amount")
+                            elif FIELDS[field] == FIELD_TYPES["date"]:
+                                fields[field] = util.normalize(labels[field], key="date")
+                            else:
+                                fields[field] = labels[field]
+                        else:
+                            fields[field] = ''
+
+                    data = {
+                        "fields": fields,
+                        "nGrams": ngrams,
+                        "height": height,
+                        "width": width,
+                        "filename": os.path.abspath(
+                            os.path.join(args.out_dir, phase, os.path.basename(filename)[:-3] + 'png'))
+                    }
+
+                    with open(os.path.join(args.out_dir, phase, os.path.basename(filename)[:-3] + 'json'), 'w') as fp:
+                        fp.write(simplejson.dumps(data, indent=2))
 
             except Exception as exp:
                 print("Skipping {} : {}".format(filename, exp))

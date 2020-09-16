@@ -82,7 +82,7 @@ class TextParser:
 def extract_words(img):
     data = pytesseract.image_to_data(img, output_type=Output.DICT)
     n_boxes = len(data['text'])
-    words = [{'text': data['text'][i],
+    words = [{'text': data['text'][i].lower(),
               'left': data['left'][i],
               'top': data['top'][i],
               'right': data['left'][i] + data['width'][i],
