@@ -111,7 +111,7 @@ def divide_into_lines(words, height, width):
         cur = word
     lines.append(line)
     return lines
-
+ 
 
 def create_ngrams(img, length=4):
     words = extract_words(img)

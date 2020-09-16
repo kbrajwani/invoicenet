@@ -364,7 +364,7 @@ class Trainer(Frame):
             self.logger.log("Preparing {} data...".format(phase))
             for filename in tqdm(filenames):
                 # try:
-                page = pdf2image.convert_from_path(filename)[0]
+                page = pdf2image.convert_from_path(filename,dpi=500)[0]
                 page.save(os.path.join(self.args["prepared_data"], phase, os.path.basename(filename)[:-3] + 'png'))
 
                 height = page.size[1]

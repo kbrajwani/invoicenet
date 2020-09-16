@@ -241,7 +241,7 @@ class InvoiceData(Data):
                 exceptions += 1
 
     def _process_pdf(self, path):
-        pixels = pdf2image.convert_from_path(path)[0]
+        pixels = pdf2image.convert_from_path(path,dpi=500)[0]
         height = pixels.size[1]
         width = pixels.size[0]
 
